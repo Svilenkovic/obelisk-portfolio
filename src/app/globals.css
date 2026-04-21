@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #051024;
+  --color-surface: #0a1733;
+  --color-surface-light: #16264a;
+  --color-primary: #c9a84c;
+  --color-primary-hover: #d4b65a;
+  --color-text-primary: #f0ece4;
+  --color-text-secondary: #8ba2c4;
+  
+  --font-heading: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+:root {
+  --background: #051024;
+  --foreground: #f0ece4;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: var(--font-heading);
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-light);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary);
+}
+
+::selection {
+  background: rgba(201, 168, 76, 0.3);
+  color: #ffffff;
+}
+
+.clip-hidden {
+  clip-path: circle(0% at 50% 50%);
+}

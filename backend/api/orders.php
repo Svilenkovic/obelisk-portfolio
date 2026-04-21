@@ -3,81 +3,34 @@ declare(strict_types=1);
 require_once __DIR__ . '/config.php';
 
 $db = getDB();
-$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
-if ($method === 'POST') {
-    handleCreateOrder($db);
-}
-
-if ($method === 'GET') {
-    handleGetOrder($db);
-}
-
-jsonError('Method not allowed', 405);
-
-function handleCreateOrder(PDO $db): never {
+// POST — place order
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     rateLimit(10, 60); // max 10 orders per minute per IP
 
     $input = getJsonInput();
 
-    $items = $input['items'] ?? null;
+    // Validate required fields
+    $required = ['customer_name', 'customer_phone', 'address', 'city', 'zip_code', 'items'];
+    foreach ($required as $field) {
+        if (empty($input[$field])) {
+            jsonError("Polje '{$field}' je obavezno");
+        }
+    }
+
+    $items = $input['items'];
     if (!is_array($items) || count($items) === 0) {
         jsonError('Korpa je prazna');
     }
 
-    // Sanitize and validate customer data
-    $name = substr(cleanInput((string) ($input['customer_name'] ?? '')), 0, 120);
-    $phone = substr(cleanInput((string) ($input['customer_phone'] ?? '')), 0, 32);
-    $email = substr(cleanInput((string) ($input['customer_email'] ?? '')), 0, 120);
-    $address = substr(cleanInput((string) ($input['address'] ?? '')), 0, 180);
-    $city = substr(cleanInput((string) ($input['city'] ?? '')), 0, 100);
-    $zip = substr(cleanInput((string) ($input['zip_code'] ?? '')), 0, 20);
-    $note = substr(cleanInput((string) ($input['note'] ?? '')), 0, 500);
-
-    if ($name === '' || $phone === '' || $address === '' || $city === '' || $zip === '') {
-        jsonError('Nedostaju obavezni podaci kupca');
-    }
-
-    if (!preg_match('/^[\d\s+\-()]{6,20}$/', $phone)) {
-        jsonError('Neispravan format telefona');
-    }
-
-    if ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        jsonError('Neispravan email format');
-    }
-
-    // Validate product IDs first (deduped for efficient DB lookup)
-    $productIdsMap = [];
-    foreach ($items as $index => $item) {
-        if (!is_array($item)) {
-            jsonError('Neispravan format stavke u korpi');
-        }
-
-        $pid = (int) ($item['product_id'] ?? 0);
-        if ($pid <= 0) {
-            jsonError('Neispravan product_id u korpi');
-        }
-
-        $productIdsMap[$pid] = $pid;
-    }
-
-    $productIds = array_values($productIdsMap);
-    if (count($productIds) === 0) {
-        jsonError('Korpa je prazna');
-    }
-
     // Validate items against DB
+    $productIds = array_column($items, 'product_id');
     $placeholders = implode(',', array_fill(0, count($productIds), '?'));
     $stmt = $db->prepare("SELECT id, price FROM products WHERE id IN ({$placeholders}) AND active = 1");
     $stmt->execute($productIds);
-    $dbRows = $stmt->fetchAll();
+    $dbProducts = $stmt->fetchAll(PDO::FETCH_KEY_PAIR); // id => price
 
-    $dbProducts = [];
-    foreach ($dbRows as $row) {
-        $dbProducts[(int) $row['id']] = (float) $row['price'];
-    }
-
-    $subtotal = 0;
+    $total = 0;
     $validatedItems = [];
 
     foreach ($items as $item) {
@@ -88,27 +41,40 @@ function handleCreateOrder(PDO $db): never {
 
         $qty = max(1, min(10, (int) ($item['quantity'] ?? 1)));
         $serverPrice = (float) $dbProducts[$pid];
-        $lineTotal = $serverPrice * $qty;
-        $subtotal += $lineTotal;
-
-        $color = substr(cleanInput((string) ($item['color'] ?? '')), 0, 50);
-        $size = substr(cleanInput((string) ($item['size'] ?? '')), 0, 20);
-        if ($color === '' || $size === '') {
-            jsonError('Veličina i boja su obavezni za svaku stavku korpe');
-        }
+        $subtotal = $serverPrice * $qty;
+        $total += $subtotal;
 
         $validatedItems[] = [
             'product_id' => $pid,
-            'color' => $color,
-            'size' => $size,
+            'color' => sanitize((string) ($item['color'] ?? '')),
+            'size' => sanitize((string) ($item['size'] ?? '')),
             'quantity' => $qty,
             'price' => $serverPrice,
         ];
     }
 
     // Shipping
-    $shippingCost = $subtotal >= FREE_SHIPPING_THRESHOLD ? 0.0 : DEFAULT_SHIPPING_COST;
-    $grandTotal = $subtotal + $shippingCost;
+    $shippingCost = $total >= 3000 ? 0 : 350;
+    $grandTotal = $total + $shippingCost;
+
+    // Sanitize customer data
+    $name = sanitize((string) $input['customer_name']);
+    $phone = sanitize((string) $input['customer_phone']);
+    $email = sanitize((string) ($input['customer_email'] ?? ''));
+    $address = sanitize((string) $input['address']);
+    $city = sanitize((string) $input['city']);
+    $zip = sanitize((string) $input['zip_code']);
+    $note = sanitize((string) ($input['note'] ?? ''));
+
+    // Validate phone
+    if (!preg_match('/^[\d\s+\-()]{6,20}$/', $phone)) {
+        jsonError('Neispravan format telefona');
+    }
+
+    // Validate email if provided
+    if ($email && !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        jsonError('Neispravan email format');
+    }
 
     // Insert order
     $db->beginTransaction();
@@ -151,20 +117,20 @@ function handleCreateOrder(PDO $db): never {
         $db->commit();
         jsonResponse(['order_id' => $orderId], true, 201);
 
-    } catch (\Throwable $e) {
-        if ($db->inTransaction()) {
-            $db->rollBack();
-        }
+    } catch (\Exception $e) {
+        $db->rollBack();
         jsonError('Greška pri kreiranju porudžbine', 500);
     }
 }
 
-function handleGetOrder(PDO $db): never {
-    $id = (int) ($_GET['id'] ?? 0);
-    $phone = cleanInput((string) ($_GET['phone'] ?? ''));
-    if ($id <= 0 || $phone === '') {
+// GET — order status lookup
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    if (empty($_GET['id']) || empty($_GET['phone'])) {
         jsonError('Parametri id i phone su obavezni');
     }
+
+    $id = (int) $_GET['id'];
+    $phone = sanitize($_GET['phone']);
 
     $stmt = $db->prepare('SELECT * FROM orders WHERE id = :id AND customer_phone = :phone LIMIT 1');
     $stmt->execute(['id' => $id, 'phone' => $phone]);
@@ -187,14 +153,12 @@ function handleGetOrder(PDO $db): never {
     // Cast types
     $order['total'] = (float) $order['total'];
     $order['shipping_cost'] = (float) $order['shipping_cost'];
-    $order['id'] = (int) $order['id'];
     foreach ($order['items'] as &$item) {
-        $item['id'] = (int) $item['id'];
-        $item['product_id'] = (int) $item['product_id'];
         $item['price'] = (float) $item['price'];
         $item['quantity'] = (int) $item['quantity'];
     }
-    unset($item);
 
     jsonResponse($order);
 }
+
+jsonError('Method not allowed', 405);
