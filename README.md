@@ -1,8 +1,8 @@
 # Nacionale Streetwear
 
-Kompletan source kod za Nacionale web shop: Next.js frontend (static export) + PHP API + SQL schema + nginx konfiguracija.
+Full source repository for the Nacionale web shop: Next.js frontend (static export), PHP API, SQL schema, and Nginx deployment configuration.
 
-## Tehnologije
+## Tech Stack
 
 - Next.js 16 (App Router, `output: "export"`)
 - React 19 + TypeScript
@@ -11,43 +11,44 @@ Kompletan source kod za Nacionale web shop: Next.js frontend (static export) + P
 - PHP API (`backend/api`)
 - MySQL schema (`backend/sql`)
 
-## Struktura projekta
+## Project Structure
 
-- `src/`: frontend source (app, komponente, hooks, lib)
-- `backend/api/`: PHP endpointi (`products`, `collections`, `orders`)
-- `backend/sql/`: baza i inicijalna schema
-- `nginx/`: primer deploy konfiguracije
-- `next.config.ts`: static export podeavanja
+- `src/`: frontend source (app, components, hooks, libraries)
+- `backend/api/`: PHP endpoints (`products`, `collections`, `orders`)
+- `backend/sql/`: database schema and SQL resources
+- `nginx/`: deployment configuration example
+- `next.config.ts`: static export configuration
 
-## Lokalni razvoj (frontend)
+## Local Development (Frontend)
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Build i quality check
+## Build & Quality Checks
 
 ```bash
 npm run build
 npm run lint
 ```
 
-## Backend napomena
+## Backend Notes
 
-API endpointi ocekuju PHP + MySQL okruzenje. Pre produkcije obavezno:
+API endpoints require PHP + MySQL runtime.
+Before production deployment, validate:
 
-- validacija DB kredencijala,
-- prepared statements i error handling,
-- testiranje endpointa (`orders.php`, `products.php`, itd.).
+- database credentials and access control
+- prepared statements and error handling
+- endpoint behavior (`orders.php`, `products.php`, etc.)
 
-## Live Preview
+## Live Site
 
 - https://nacionale.svilenkovic.rs
 
-## Deploy flow (produkcija)
+## Production Deployment Flow
 
-1. Frontend build: `npm run build`
-2. Deploy `out/` u web root
-3. Deploy/azuriranje `backend/api` i SQL migracija po potrebi
-4. Zavrsna provera API + frontend integracije
+1. Build frontend: `npm run build`
+2. Deploy `out/` to web root
+3. Deploy/update `backend/api` and SQL changes as required
+4. Run final API + frontend integration checks
