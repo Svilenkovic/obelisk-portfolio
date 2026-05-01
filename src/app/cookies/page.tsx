@@ -48,12 +48,6 @@ export default function CookiesPage() {
                 </thead>
                 <tbody className="text-text-secondary">
                   <tr className="border-b border-white/5">
-                    <td className="py-3 pr-4 font-mono text-xs text-primary">obelisk_cart_v1</td>
-                    <td className="py-3 pr-4">localStorage</td>
-                    <td className="py-3 pr-4">Pamti stavke u demo korpi između stranica.</td>
-                    <td className="py-3">Dok ručno ne obrišete</td>
-                  </tr>
-                  <tr className="border-b border-white/5">
                     <td className="py-3 pr-4 font-mono text-xs text-primary">obelisk_cookie_consent_v1</td>
                     <td className="py-3 pr-4">localStorage</td>
                     <td className="py-3 pr-4">Pamti vaš odabir u banneru za kolačiće.</td>

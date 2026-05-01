@@ -5,7 +5,6 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { Product } from '@/lib/types';
-import { useCart } from '@/hooks/useCart';
 
 interface ProductCardProps {
   product: Product;
@@ -14,7 +13,6 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, index }: ProductCardProps) {
   const cardRef = useRef<HTMLAnchorElement>(null);
-  const addItem = useCart((state) => state.addItem);
   const price = product.discount_price ?? product.price;
 
   useGSAP(

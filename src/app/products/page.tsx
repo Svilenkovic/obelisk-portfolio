@@ -3,7 +3,6 @@
 import React, { Suspense, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useProduct } from '@/hooks/useProducts';
-import { useCart } from '@/hooks/useCart';
 import ProductViewer from '@/components/3d/ProductViewer';
 import ScrollReveal from '@/components/animations/ScrollReveal';
 import Button from '@/components/ui/Button';
@@ -12,11 +11,9 @@ function ProductContent() {
   const searchParams = useSearchParams();
   const slug = searchParams.get('slug');
   const { product, isLoading } = useProduct(slug || '');
-  const addItem = useCart(state => state.addItem);
 
   const [selectedSize, setSelectedSize] = useState<string>('');
   const [selectedColor, setSelectedColor] = useState<string>('');
-  const [isAdding, setIsAdding] = useState(false);
 
   const price = product?.discount_price ?? product?.price ?? 0;
 
@@ -30,13 +27,6 @@ function ProductContent() {
           } catch(e) {}
       }
   }, [product]);
-
-  const handleAddToCart = () => {
-      if(!product || !selectedSize || !selectedColor) return;
-      setIsAdding(true);
-      addItem(product, selectedSize, selectedColor, 1);
-      window.setTimeout(() => setIsAdding(false), 800);
-  };
 
   if (isLoading) {
       return <div className="min-h-screen pt-32 flex justify-center"><div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" role="status" aria-label="Učitavanje" /></div>;
@@ -139,12 +129,11 @@ function ProductContent() {
 
                <ScrollReveal animation="fade-up" delay={0.5}>
                   <Button
-                    variant="primary"
+                    href="/"
+                    variant="outline"
                     className="w-full py-5 text-sm"
-                    onClick={handleAddToCart}
-                    disabled={isAdding || product.stock_status !== 'in_stock'}
                   >
-                     {product.stock_status !== 'in_stock' ? 'NIJE U PONUDI (DEMO)' : isAdding ? 'DODATO U DEMO ✓' : 'DODAJ U DEMO KORPU'}
+                    Nazad na koncept
                   </Button>
                </ScrollReveal>
 
@@ -152,7 +141,7 @@ function ProductContent() {
                   <div className="mt-12 flex flex-col gap-4 pt-8 border-t border-white/10">
                       <div className="flex items-start gap-4 text-sm text-text-secondary">
                           <span className="font-heading text-primary font-bold mt-1 uppercase text-[10px] tracking-widest">Demo</span>
-                          <p>Sajt je portfolio koncept. Nije aktivna prodavnica — neće biti porudžbine ni naplate.</p>
+                          <p>Sajt je portfolio koncept. Nije aktivna prodavnica — kupovina nije moguća.</p>
                       </div>
                       <div className="flex items-start gap-4 text-sm text-text-secondary">
                           <span className="font-heading text-primary font-bold mt-1 uppercase text-[10px] tracking-widest">Tehnika</span>

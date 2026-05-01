@@ -36,11 +36,11 @@ export default function CookieBanner() {
       role="dialog"
       aria-label="Saglasnost za kolačiće"
       aria-live="polite"
-      className="fixed bottom-3 left-3 right-3 sm:left-4 sm:right-4 md:right-auto md:max-w-md max-w-[calc(100vw-1.5rem)] z-[100] bg-surface border border-primary/30 rounded-xl p-4 sm:p-5 md:p-6 shadow-2xl backdrop-blur-xl box-border"
+      className="fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100vw-1.5rem)] max-w-md z-[100] bg-surface border border-primary/30 rounded-xl p-4 sm:p-5 md:p-6 shadow-2xl backdrop-blur-xl box-border"
     >
-      <h2 className="font-heading text-sm sm:text-base uppercase tracking-widest mb-2 sm:mb-3 text-text-primary">Kolačići</h2>
-      <p className="text-xs sm:text-sm text-text-secondary leading-relaxed mb-3 sm:mb-4">
-        Sajt koristi samo neophodne kolačiće za osnovnu funkcionalnost (npr. demo korpa).
+      <h2 className="font-heading text-sm sm:text-base uppercase tracking-widest mb-2 sm:mb-3 text-text-primary text-center">Kolačići</h2>
+      <p className="text-xs sm:text-sm text-text-secondary leading-relaxed mb-3 sm:mb-4 text-center">
+        Sajt koristi samo neophodne kolačiće (saglasnost za banner i tehnička podešavanja).
         Analitika nije aktivna. Više detalja u{' '}
         <Link href="/privacy" className="text-primary hover:text-primary-hover underline underline-offset-4">Politici privatnosti</Link>{' '}
         i{' '}

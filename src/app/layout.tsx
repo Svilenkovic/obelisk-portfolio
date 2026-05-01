@@ -5,7 +5,6 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SmoothScrollProvider from "@/components/layout/SmoothScrollProvider";
 import CookieBanner from "@/components/layout/CookieBanner";
-import PortfolioBadge from "@/components/layout/PortfolioBadge";
 import BackToTop from "@/components/layout/BackToTop";
 
 const spaceGrotesk = Space_Grotesk({
@@ -61,7 +60,6 @@ export default function RootLayout({
         <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[200] focus:bg-primary focus:text-background focus:px-4 focus:py-2 focus:rounded">
           Pređi na glavni sadržaj
         </a>
-        <PortfolioBadge />
         <SmoothScrollProvider>
           <Header />
           <main id="main-content" className="min-h-screen relative z-10 w-full overflow-x-clip">

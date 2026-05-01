@@ -7,16 +7,13 @@ import { useGSAP } from '@gsap/react';
 import Preloader from '@/components/animations/Preloader';
 import ScrollExperience from '@/components/3d/ScrollExperience';
 import TextReveal from '@/components/animations/TextReveal';
-import Button from '@/components/ui/Button';
 import { sceneScrollProxy } from '@/lib/scrollProxy';
 import { mockProducts } from '@/lib/mockData';
-import { useCart } from '@/hooks/useCart';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Home() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const addItem = useCart(state => state.addItem);
 
   useGSAP(() => {
     if (!containerRef.current) return;
@@ -88,12 +85,6 @@ export default function Home() {
     });
 
   }, { scope: containerRef });
-
-  const handleAdd = (p: typeof mockProducts[0]) => {
-      let size = "L", color = "#000";
-      try { size = JSON.parse(p.sizes)[0]; color = JSON.parse(p.colors)[0]; } catch(e){}
-      addItem(p as any, size, color, 1);
-  };
 
   return (
     <>
@@ -192,14 +183,12 @@ export default function Home() {
                            {product.description}
                        </p>
 
-                       <div className={`flex flex-col sm:flex-row items-center sm:items-center gap-6 sm:gap-8 pt-6 border-t border-[#16264a] ${priceRowAlign}`}>
+                       <div className={`flex flex-col items-center gap-2 pt-6 border-t border-[#16264a] ${priceRowAlign}`}>
                            <div className={`${priceTextAlign} w-full sm:w-auto`}>
                               {product.discount_price && <span className="text-xs md:text-sm line-through text-text-secondary block mb-1">{product.price.toLocaleString('sr-RS')} RSD</span>}
                               <span className="font-heading text-2xl md:text-4xl font-medium text-white tracking-widest">{(product.discount_price ?? product.price).toLocaleString('sr-RS')} RSD</span>
+                              <span className="block mt-2 text-[10px] uppercase tracking-widest text-text-secondary/70 font-heading">Cena je deo demo prikaza</span>
                            </div>
-                           <Button onClick={() => handleAdd(product)} variant="outline" className="text-xs px-6 sm:px-8 py-3 sm:py-4 border-primary text-primary hover:bg-primary hover:text-[#051024] pointer-events-auto w-full sm:w-auto">
-                               Dodaj u demo korpu
-                           </Button>
                        </div>
                     </div>
                 </div>

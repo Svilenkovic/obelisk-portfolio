@@ -47,8 +47,7 @@ export default function PrivacyPage() {
             <h2 className="font-heading uppercase tracking-widest text-text-primary text-lg mb-4">3. Koji podaci se prikupljaju</h2>
             <p>OBELISK ne sadrži aktivnu analitiku, marketing pixel-e niti remarketing alate. Konkretno:</p>
             <ul className="list-disc list-inside space-y-2 ml-4">
-              <li><strong className="text-primary">Demo korpa</strong> čuva izabrane stavke u <em>localStorage</em> vašeg pretraživača. Podaci ne napuštaju vaš uređaj.</li>
-              <li><strong className="text-primary">Forma za poručivanje</strong> u demo režimu <em>ne šalje</em> podatke serveru. Polja koja popunite postoje samo dok je stranica otvorena.</li>
+              <li><strong className="text-primary">Forma za poručivanje</strong> nije aktivna na ovom portfolio sajtu — ne postoji checkout proces niti slanje narudžbina.</li>
               <li><strong className="text-primary">Server log-ovi</strong> standardno beleže IP adresu, vreme zahteva i tip browser-a (rotacija ~30 dana). Ovo je deo redovne nginx infrastrukture i ne koristi se za profilisanje.</li>
               <li><strong className="text-primary">Saglasnost za kolačiće</strong> se beleži kao mali zapis u <em>localStorage</em> da banner ne bismo prikazivali svaki put.</li>
             </ul>
