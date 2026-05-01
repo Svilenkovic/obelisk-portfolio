@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { sceneScrollProxy } from '@/lib/scrollProxy';
 
@@ -11,6 +11,7 @@ interface Props {
 
 export default function GarmentModel({ lowDetail = false }: Props) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const viewportWidth = useThree((state) => state.viewport.width);
 
   useFrame((state) => {
     if (!meshRef.current) return;
@@ -18,7 +19,11 @@ export default function GarmentModel({ lowDetail = false }: Props) {
     const r1 = sceneScrollProxy.progress;
     const time = state.clock.elapsedTime;
 
-    const amplitude = Math.min(r1 * 10, 1) * 3;
+    // Skala prema širini viewport-a u world unitima (camera fov 45 @ z=8 → ~3 wide na mobile portrait, ~16 na desktop).
+    // Drži petlju i njene levo-desno pokrete unutar vidljivog kadra na svim ekranima.
+    const vpScale = Math.min(1, Math.max(0.4, viewportWidth / 8));
+
+    const amplitude = Math.min(r1 * 10, 1) * 3 * vpScale;
     meshRef.current.position.x = Math.sin(r1 * Math.PI * 6) * -amplitude;
 
     const startZ = THREE.MathUtils.lerp(3, 0, Math.min(r1 * 5, 1));
@@ -28,7 +33,7 @@ export default function GarmentModel({ lowDetail = false }: Props) {
 
     const pulse = Math.abs(Math.sin(time * 0.5)) * 0.05;
     const baseScale = THREE.MathUtils.lerp(0.35, 0.49, Math.abs(Math.sin(r1 * Math.PI * 4)));
-    const scale = baseScale + pulse;
+    const scale = (baseScale + pulse) * vpScale;
     meshRef.current.scale.lerp(new THREE.Vector3(scale, scale, scale), 0.05);
 
     meshRef.current.rotation.y = r1 * Math.PI * 4 + Math.sin(time * 0.4) * 0.2;

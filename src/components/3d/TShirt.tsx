@@ -2,12 +2,17 @@
 
 import React, { useRef, useMemo } from 'react';
 import * as THREE from 'three';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { Float, ContactShadows } from '@react-three/drei';
 
 export default function TShirt({ color = '#000000', abstract = true }) {
   const meshRef = useRef<THREE.Mesh>(null);
-  
+  const viewportWidth = useThree((state) => state.viewport.width);
+
+  // Skalira petlju i njene pokrete prema širini viewport-a u world unitima.
+  // Desktop hero (~16 wide) → 1.0; tablet portrait (~5) → ~0.83; mobile portrait (~3) → ~0.5.
+  const scale = Math.min(1, Math.max(0.45, viewportWidth / 6));
+
   const texture = useMemo(() => {
     if (typeof document === 'undefined') return null; // SSR fallback
     const canvas = document.createElement('canvas');
@@ -38,8 +43,8 @@ export default function TShirt({ color = '#000000', abstract = true }) {
   });
 
   return (
-    <Float speed={1.5} rotationIntensity={0.5} floatIntensity={0.8}>
-      <mesh ref={meshRef} castShadow receiveShadow>
+    <Float speed={1.5} rotationIntensity={0.5 * scale} floatIntensity={0.8 * scale}>
+      <mesh ref={meshRef} scale={scale} castShadow receiveShadow>
         {abstract ? (
           <torusKnotGeometry args={[1, 0.4, 128, 32, 2, 3]} />
         ) : (
@@ -53,7 +58,7 @@ export default function TShirt({ color = '#000000', abstract = true }) {
           envMapIntensity={1.2}
         />
       </mesh>
-      <ContactShadows position={[0, -2, 0]} opacity={0.6} blur={2.5} scale={10} far={10} color="#000000" />
+      <ContactShadows position={[0, -2 * scale, 0]} opacity={0.6} blur={2.5} scale={10 * scale} far={10} color="#000000" />
     </Float>
   );
 }
